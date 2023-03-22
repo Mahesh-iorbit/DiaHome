@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:layout_gravity="center"
+    android:background="@drawable/flag_transparent"
+    android:orientation="vertical"
+    android:visibility="visible"
+    >
+<!--  android:minHeight="50dp"
+    android:maxHeight="50dp"     android:layout_margin="30dp"
+  android:backgroundTint="#A57BEF"-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/flag_transparent"
+        android:orientation="vertical"
+        android:visibility="visible"
+        android:layout_marginBottom="50dp"
+        >
+
+        <TextView
+            android:id="@+id/tvDialogTitle"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/line_border"
+            android:gravity="center"
+            android:padding="10dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="Scanning Measurement"
+            android:textColor="@color/white"
+            android:textSize="@dimen/action_bar_text"
+            tools:ignore="SpUsage"
+
+            />
+
+        <LinearLayout
+            android:layout_width="454dp"
+            android:layout_height="387dp"
+            android:layout_gravity="center">
+
+            <!--            <ImageView-->
+            <!--                android:id="@+id/loading_indicator"-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+
+
+            <!--                />-->
+            <com.example.aidl_service.Device.OCR.text.ViewfinderView
+                android:id="@+id/viewfinderView"
+                android:layout_width="448dp"
+                android:layout_height="381dp" />
+
+        </LinearLayout>
+
+<!--<include layout="@layout/camscan_animation"/>-->
+
+
+
+
+        <TextView
+            android:id="@+id/tvDialogContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:lineSpacingMultiplier="1.2"
+            android:maxHeight="50dp"
+            android:padding="10dp"
+            android:scrollbars="vertical"
+            android:textColor="@color/white"
+            android:background="@drawable/line_border"
+            android:textSize="@dimen/font_size_medium" />
+
+
+<!--    <include layout="@layout/app_dialog_line_h" />-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        >
+
+
+
+
+        <Button
+            android:id="@+id/btnRescan"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/line_border"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="Rescan"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font_size_medium"
+            android:visibility="invisible" />
+
+
+
+        <Button
+            android:id="@+id/btnDialogConfirm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/line_border"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="Save"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font_size_medium"
+            android:visibility="invisible"
+            />
+
+
+    </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        >
+    <Button
+        android:layout_gravity="bottom"
+        android:id="@+id/btnDialogCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="@drawable/line_border"
+        android:text="Cancel"
+        android:textSize="@dimen/font_size_medium"
+        />
+    </LinearLayout>
+
+<!--    <include layout="@layout/app_dialog_line_h" />-->
+</LinearLayout>
