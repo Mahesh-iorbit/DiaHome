@@ -10,11 +10,30 @@
     android:layout_height="wrap_content"
     android:layout_centerInParent="true">
 
+    <Button
+        android:id="@+id/show_toast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textAllCaps="false"
+        android:text="Show Toast"/>
+
+    <Button
+        android:id="@+id/show_alert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/show_toast"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textAllCaps="false"
+        android:text="Show Alert"/>
 
     <Button
         android:id="@+id/take_permission"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/show_alert"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:textAllCaps="false"

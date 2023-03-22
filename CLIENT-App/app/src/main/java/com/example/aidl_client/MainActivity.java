@@ -39,14 +39,47 @@ public class MainActivity extends Activity{
         //Initialize the UI
         mContext=this;
 
+        ShowToast = findViewById(R.id.show_toast);
+        ShowAlert = findViewById(R.id.show_alert);
         TakePermission = findViewById(R.id.take_permission);
 
         bindAIDLService();
 
 
+        ShowToast.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Call the AIDL method to display a toast in the client app
+                try {
+                    aidlInterfaceObject.showToast("Hello from Client app!");
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+        ShowAlert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    // Call the AIDL method to display a toast in the client app
+                    aidlInterfaceObject.showUI("Hello from Client app!");
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         TakePermission.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                try {
+//                    aidlInterfaceObject.requestPermission();
+//                } catch (RemoteException e) {
+//                    e.printStackTrace();
+//                }
+                // Create an Intent to launch the target activity
                 Intent intent = new Intent();
                 intent.setComponent(new ComponentName("com.example.aidl_service", "com.example.aidl_service.ui.BluetoothActivity"));
                 startActivity(intent);
