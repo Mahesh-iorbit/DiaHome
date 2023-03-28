@@ -5,40 +5,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_centerInParent="true">
 
-    <Button
-        android:id="@+id/show_toast"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:textAllCaps="false"
-        android:text="Show Toast"/>
-
-    <Button
-        android:id="@+id/show_alert"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/show_toast"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:textAllCaps="false"
-        android:text="Show Alert"/>
-
-    <Button
-        android:id="@+id/take_permission"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/show_alert"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:textAllCaps="false"
-        android:text="Navigate"/>
+        android:layout_centerInParent="true">
 
 
-</RelativeLayout>
+        <Button
+            android:id="@+id/take_permission"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#000000"
+            android:textColor="@color/colorPrimary"
+            android:text="Navigate"
+            android:textAllCaps="false" />
+
+
+    </RelativeLayout>
 </RelativeLayout>
