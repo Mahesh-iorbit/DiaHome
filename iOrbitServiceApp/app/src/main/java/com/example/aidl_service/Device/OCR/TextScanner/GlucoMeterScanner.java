@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,16 +22,24 @@ import com.example.aidl_service.Device.OCR.camera.analyze.Analyzer;
 import com.example.aidl_service.Device.OCR.text.TextCameraScanActivity;
 import com.example.aidl_service.Device.OCR.text.ViewfinderView;
 import com.example.aidl_service.Device.OCR.text.analyze.TextRecognitionAnalyzer;
+import com.example.aidl_service.Model.SaveMeasureModel;
+import com.example.aidl_service.Model.StatusResponseModel;
+import com.example.aidl_service.Network.RetrofitClient;
+import com.example.aidl_service.Network.ServiceApi;
 import com.example.aidl_service.R;
+import com.example.aidl_service.Utils.Utils;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
-
 import com.king.app.dialog.AppDialog;
 import com.king.app.dialog.AppDialogConfig;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 
 public class GlucoMeterScanner extends TextCameraScanActivity {
@@ -70,6 +80,20 @@ public class GlucoMeterScanner extends TextCameraScanActivity {
             isScanning = false;
         }
     };
+
+
+
+    @Override
+    public void onBackPressed() {
+        // Check if the dialog is showing
+
+
+        finish();
+        AppDialog.INSTANCE.dismissDialog();
+
+        // Call the default implementation of onBackPressed
+        super.onBackPressed();
+    }
 
     @Override
     public void onScanResultCallback(AnalyzeResult<Text> result) {
@@ -129,7 +153,8 @@ public class GlucoMeterScanner extends TextCameraScanActivity {
 
             });
             config.setOnClickConfirm(v -> {
-             // saveMeasurement(glucoseValue);
+                Utils.showLoaderDialog(this);
+              saveMeasurement(glucoseValue);
                 measurementSaved = true;
             });
             AppDialog.INSTANCE.showDialog(config, false);
@@ -146,7 +171,7 @@ public class GlucoMeterScanner extends TextCameraScanActivity {
            // Glide.with(getApplicationContext()).load(R.drawable.scanner).into(gif);
             TextView tvDialogContent = config.getView(R.id.tvDialogContent);
             tvDialogContent.setText(text);
-           // tvDialogContent.setVisibility(View.INVISIBLE);
+            tvDialogContent.setVisibility(View.INVISIBLE);
             tvDialogContent.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         }
@@ -155,7 +180,7 @@ public class GlucoMeterScanner extends TextCameraScanActivity {
             TextView tvDialogTitle = config.getView(R.id.tvDialogTitle);
             tvDialogTitle.setText("Blood Glucose Measurement");
             TextView tvDialogContent = config.getView(R.id.tvDialogContent);
-           // tvDialogContent.setVisibility(View.VISIBLE);
+            tvDialogContent.setVisibility(View.VISIBLE);
             tvDialogContent.setText("Glucose Level: " + glucoseValue + " " + glucoseUnit);
             btnRescan.setVisibility(View.VISIBLE);
             Button btnConfirm=  config.getView(R.id.btnDialogConfirm);
@@ -192,58 +217,63 @@ public class GlucoMeterScanner extends TextCameraScanActivity {
             return new TextRecognitionAnalyzer(new TextRecognizerOptions.Builder().build());
         }
 
-//    public void saveMeasurement(int glucoseValue) {
-//        progressDialog = new ProgressDialog(this);
-//        progressDialog.setMessage("Saving...");
-//        progressDialog.setCancelable(false);
-//        progressDialog.show();
-//        int intVal = glucoseValue;
-//        String BpName = "BG";
-//        RetrofitClient retrofit = new RetrofitClient();
-//        Retrofit retrofitClient = retrofit.getRetrofitInstance(this);
-//        if (retrofitClient == null) {
-//            return;
-//        }
-//
-//            SaveMeasureModel measure = new SaveMeasureModel();
-//            measure.setParamName(BpName);
-//            measure.setParamFraction("");
-//            measure.setDevmodelId("2ab90e73-99c5-11eb-853f-e9af88721123");
-//            measure.setDevId("852a2034-c8dd-11eb-a396-755a8569ff4d");
-//            measure.setIntVal(String.valueOf(intVal));
-//            measure.setPatientId("1aa0001");
-//            Call<StatusResponseModel> call = retrofitClient.create(ServiceApi.class).saveMeasure("1aa0001", measure);
-//            call.enqueue(new Callback<StatusResponseModel>() {
-//                @Override
-//                public void onResponse(Call<StatusResponseModel> call, Response<StatusResponseModel> response) {
-//                    if (response.isSuccessful()) {
-//                        StatusResponseModel saveMeasureModel = new StatusResponseModel();
-//                        saveMeasureModel = response.body();
-//                        if (saveMeasureModel.getStatus().getMessage().equalsIgnoreCase("Success")) {
-//                            showSuccess("Measurement has been saved successfully","Measure Saved");
-//                        } else {
-//                            Toast.makeText(getApplicationContext(), "Something went wrong!!", Toast.LENGTH_SHORT).show();
-//                        }
-//
-//                    } else {
-//                        Toast.makeText(getApplicationContext(), "Something went wrong!!", Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                }
-//
-//                @Override
-//                public void onFailure(Call<StatusResponseModel> call, Throwable t) {
-//                    Toast.makeText(getApplicationContext(), "Something went wrong!!", Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//
-//
-//        }
+    public void saveMeasurement(int glucoseValue) {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Saving...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+        int intVal = glucoseValue;
+        String BpName = "BG";
+        if(Utils.isConnected(this)){
+        RetrofitClient retrofit = new RetrofitClient();
+        Retrofit retrofitClient = retrofit.getRetrofitInstance(this);
+        if (retrofitClient == null) {
+            return;
+        }
+
+            SaveMeasureModel measure = new SaveMeasureModel();
+            measure.setParamName(BpName);
+            measure.setParamFraction("");
+            measure.setDevmodelId("2ab90e73-99c5-11eb-853f-e9af88721123");
+            measure.setDevId("852a2034-c8dd-11eb-a396-755a8569ff4d");
+            measure.setIntVal(String.valueOf(intVal));
+            measure.setPatientId("1aa0001");
+            Call<StatusResponseModel> call = retrofitClient.create(ServiceApi.class).SaveMeasure("1aa0001", measure);
+            call.enqueue(new Callback<StatusResponseModel>() {
+                @Override
+                public void onResponse(Call<StatusResponseModel> call, Response<StatusResponseModel> response) {
+                    if (response.isSuccessful()) {
+                        StatusResponseModel saveMeasureModel = new StatusResponseModel();
+                        saveMeasureModel = response.body();
+                        if (saveMeasureModel.getStatus().getMessage().equalsIgnoreCase("Success")) {
+                            showSuccess("Measurement has been saved successfully","Measure Saved");
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Something went wrong!!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Something went wrong!!", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Call<StatusResponseModel> call, Throwable t) {
+                    Toast.makeText(getApplicationContext(), "Something went wrong!!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else{
+            Utils.closeLoaderDialog();
+            showSuccess("Check Your Internet Connection","NO INTERNET");
+        }
+
+        }
 
 
     private void showSuccess(String msg, String title){
 //Base_ThemeOverlay_AppCompat_Dialog_Alert {-White Color}
         //Base_Theme_MaterialComponents_Dialog_Alert {-Black}
+       try{
         AlertDialog.Builder builder =new AlertDialog.Builder(new ContextThemeWrapper(GlucoMeterScanner.this, R.style.Widget_AppCompat_ButtonBar_AlertDialog));
         builder.setTitle(title);
         builder.setMessage(msg);
@@ -252,6 +282,12 @@ public class GlucoMeterScanner extends TextCameraScanActivity {
                 finish());
         AppDialog.INSTANCE.dismissDialog();
         builder.show();
-
+    } catch (
+    WindowManager.BadTokenException e) {
+        e.printStackTrace();
     }
+
+}
+
+
 }

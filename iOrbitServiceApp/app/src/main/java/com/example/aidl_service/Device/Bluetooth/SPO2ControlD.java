@@ -1,6 +1,10 @@
 package com.example.aidl_service.Device.Bluetooth;
 
+import static com.example.aidl_service.Utils.Utils.showSuccess;
+
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -12,17 +16,24 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 
+import androidx.appcompat.view.ContextThemeWrapper;
+
+import com.example.aidl_service.Device.OCR.TextScanner.ThermometerScanner;
 import com.example.aidl_service.Model.SaveMeasureModel;
 import com.example.aidl_service.Model.StatusResponseModel;
 import com.example.aidl_service.Network.RetrofitClient;
 import com.example.aidl_service.Network.ServiceApi;
+import com.example.aidl_service.R;
 import com.example.aidl_service.Utils.StatusDialog;
+import com.king.app.dialog.AppDialog;
 
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -89,6 +100,10 @@ public class SPO2ControlD {
     }
 
     private void saveMeasurement() {
+        ProgressDialog progressDialog = new ProgressDialog(mContext);
+        progressDialog.setMessage("Saving...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
         int[] intVal = {spo2, pulse};
         String[] BpName = {"oxygen_level", "BPM"};
         RetrofitClient retrofit = new RetrofitClient();
@@ -97,6 +112,7 @@ public class SPO2ControlD {
             return;
         }
 
+        AtomicInteger counter = new AtomicInteger();
         for (int i = 0; i < intVal.length; i++) {
             SaveMeasureModel measure = new SaveMeasureModel();
             measure.setParamName(BpName[i]);
@@ -113,10 +129,11 @@ public class SPO2ControlD {
                         StatusResponseModel saveMeasureModel = new StatusResponseModel();
                         saveMeasureModel = response.body();
                         if(saveMeasureModel.getStatus().getMessage().equalsIgnoreCase("Success")){
-                            Toast.makeText(mContext, saveMeasureModel.getStatus().getDetails(), Toast.LENGTH_SHORT).show();
-
-
-                            StatusDialog.close();
+                            counter.getAndIncrement();
+                            if (counter.get() == intVal.length) {
+                                progressDialog.dismiss();
+                                showSuccess(mContext,"Measurement has been saved successfully", "Measure Saved");
+                            }
                         }else {
                             Toast.makeText(mContext, "Something went wrong!!", Toast.LENGTH_SHORT).show();
                         }
@@ -136,6 +153,8 @@ public class SPO2ControlD {
         }
 
     }
+
+
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @SuppressLint("MissingPermission")
@@ -233,13 +252,19 @@ public class SPO2ControlD {
                     val1 = data[2];
                     pulse = data[3];
                     spo2 = data[4];
-                    StatusDialog.setMessage("Oxygen Level: " + spo2 + " Pulse: " + pulse);
+                    if(spo2>=100){
+                        StatusDialog.setMessage("Oxygen Level: " + "99" + " Pulse: " + pulse);
+                    }else{
+                        StatusDialog.setMessage("Oxygen Level: " + spo2 + " Pulse: " + pulse);
+                    }
+
                     StatusDialog.setOnPositiveButtonClickedListener("Save", new StatusDialog.OnPositiveButtonClickedListener() {
                         @Override
                         public void onPositiveButtonClicked() {
                             gatt.disconnect();
                             gatt.close();
                             discOnnected = true;
+                            StatusDialog.close();
                             saveMeasurement();
                         }
                     });

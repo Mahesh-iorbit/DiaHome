@@ -26,7 +26,6 @@ import com.example.aidl_service.Device.OCR.camera.analyze.Analyzer;
 import com.example.aidl_service.Device.OCR.camera.config.CameraConfig;
 
 
-
 /**
  * 相机扫描基类定义；内置的默认实现见：{@link BaseCameraScan}
  * <p>

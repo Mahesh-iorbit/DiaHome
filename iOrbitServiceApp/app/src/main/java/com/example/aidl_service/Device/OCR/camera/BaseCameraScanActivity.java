@@ -30,7 +30,6 @@ import com.example.aidl_service.R;
 
 
 
-
 /**
  * 相机扫描基类；{@link BaseCameraScanActivity} 内部持有{@link CameraScan}，便于快速实现扫描识别。
  * <p>

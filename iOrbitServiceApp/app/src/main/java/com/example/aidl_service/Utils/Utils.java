@@ -2,18 +2,29 @@ package com.example.aidl_service.Utils;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
+import android.view.WindowManager;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+
+import com.example.aidl_service.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
+
+    static Dialog dialog;
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     public static void requestPermissions(Context context) {
@@ -81,5 +92,46 @@ public class Utils {
 
     private static boolean hasCameraPermission(Context context) {
         return ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static boolean isConnected(Context context){
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return (info != null && info.isConnected());
+    }
+
+
+    public static void showLoaderDialog(Context context){
+        dialog = new Dialog(context);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setContentView(R.layout.custom_loader_dialog);
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
+        dialog.show();
+        dialog.getWindow().setAttributes(lp);
+    }
+    public static void closeLoaderDialog(){
+        dialog.dismiss();
+
+    }
+
+    public static void showSuccess(Context mContext, String msg, String title) {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(mContext, R.style.Widget_AppCompat_ButtonBar_AlertDialog));
+            builder.setTitle(title);
+            builder.setMessage(msg);
+            builder.setCancelable(false);
+            builder.setPositiveButton("OK", (dialogInterface, i) -> {
+                // Dismiss the dialog when the "OK" button is clicked
+                dialogInterface.dismiss();
+            });
+            builder.show();
+        } catch (WindowManager.BadTokenException e) {
+            e.printStackTrace();
+        }
     }
 }

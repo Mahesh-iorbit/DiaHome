@@ -35,6 +35,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
 import androidx.core.app.ComponentActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -47,7 +48,6 @@ import com.example.aidl_service.Device.OCR.camera.manager.AmbientLightManager;
 import com.example.aidl_service.Device.OCR.camera.manager.BeepManager;
 import com.example.aidl_service.Device.OCR.camera.util.LogUtils;
 import com.google.common.util.concurrent.ListenableFuture;
-import androidx.camera.view.PreviewView;
 
 
 import java.util.concurrent.Executors;

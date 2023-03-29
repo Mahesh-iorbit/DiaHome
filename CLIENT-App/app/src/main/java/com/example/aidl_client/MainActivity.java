@@ -11,7 +11,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.Log;
 
 import android.view.View;
@@ -25,9 +24,8 @@ import java.util.List;
 
 public class MainActivity extends Activity{
     private Context mContext;
-    private Button ShowToast,ShowAlert,TakePermission;
     public aidlInterface aidlInterfaceObject;
-    private static final int REQUEST_BLUETOOTH_PERMISSIONS = 1;
+
 
 
     @SuppressLint("MissingInflatedId")
@@ -39,11 +37,11 @@ public class MainActivity extends Activity{
         //Initialize the UI
         mContext=this;
 
-        TakePermission = findViewById(R.id.take_permission);
+        Button takePermission = findViewById(R.id.take_permission);
 
         bindAIDLService();
 
-        TakePermission.setOnClickListener(new View.OnClickListener() {
+        takePermission.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
@@ -58,7 +56,7 @@ public class MainActivity extends Activity{
     ServiceConnection serviceConnection =new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            aidlInterfaceObject=aidlInterface.Stub.asInterface( (IBinder) iBinder );
+            aidlInterfaceObject=aidlInterface.Stub.asInterface(iBinder);
 
         }
         @Override
@@ -81,7 +79,7 @@ public class MainActivity extends Activity{
         }catch (Exception e)
         {
             Toast.makeText(mContext, "Service App may not be present", Toast.LENGTH_SHORT).show();
-            Log.e("AIDL_ERROR","EXCEPTION CAUGHT: "+e.toString());
+            Log.e("AIDL_ERROR","EXCEPTION CAUGHT: "+e);
             finish();
         }
     }

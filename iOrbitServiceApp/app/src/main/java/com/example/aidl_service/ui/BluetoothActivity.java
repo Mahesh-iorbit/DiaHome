@@ -35,6 +35,7 @@ import com.example.aidl_service.Adapter.BluetoothDevicesAdapter;
 import com.example.aidl_service.Adapter.ScanDeviceListAdapter;
 import com.example.aidl_service.Device.OCR.TextScanner.GlucoMeterScanner;
 import com.example.aidl_service.Device.OCR.TextScanner.SpO2Scanner;
+import com.example.aidl_service.Device.OCR.TextScanner.ThermometerScanner;
 import com.example.aidl_service.Model.ScannerDeviceModel;
 import com.example.aidl_service.Device.Bluetooth.BPDrTrust1;
 import com.example.aidl_service.Device.CommonDataArea;
@@ -106,6 +107,7 @@ public class BluetoothActivity extends AppCompatActivity {
         List<ScannerDeviceModel> deviceModelList = new ArrayList<>();
         deviceModelList.add(new ScannerDeviceModel(R.drawable.pulse_oximeter64, "Pulse Oximeter","(Control D)"));
         deviceModelList.add(new ScannerDeviceModel(R.drawable.glucometer64, "Blood Glucometer","(Contour plus ELITE)"));
+        deviceModelList.add(new ScannerDeviceModel(R.drawable.thermogun, "Thermo Gun","(AccuSure Non Contact)"));
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.dialog_bluetooth_list, null);
@@ -134,6 +136,10 @@ public class BluetoothActivity extends AppCompatActivity {
                         break;
                     case 1:
                         intent = new Intent(BluetoothActivity.this, GlucoMeterScanner.class)
+                                .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+                        break;
+                    case 2:
+                        intent = new Intent(BluetoothActivity.this, ThermometerScanner.class)
                                 .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
                         break;
 
@@ -235,11 +241,12 @@ public class BluetoothActivity extends AppCompatActivity {
                 } else if ((devicee.getName() != null) && devicee.getName().contains(CommonDataArea.SUPPORTED_DEVICES_SPO21)) {
                     CommonDataArea.spO2ControlD = new SPO2ControlD(BluetoothActivity.this);
                     CommonDataArea.spO2ControlD.connectDevice(devicee.getAddress());
+
+                }
                 try {
                     dialog.dismiss();
                 } catch (Exception e) {
                     e.printStackTrace();
-                }
                 }}
         });
 

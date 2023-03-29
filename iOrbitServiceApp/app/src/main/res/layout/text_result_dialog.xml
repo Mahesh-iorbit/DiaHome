@@ -140,6 +140,8 @@
         android:background="@drawable/line_border"
         android:text="Cancel"
         android:textSize="@dimen/font_size_medium"
+        android:textColor="@color/white"
+
         />
     </LinearLayout>
 

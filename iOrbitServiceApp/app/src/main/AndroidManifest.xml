@@ -4,6 +4,7 @@
     package="com.example.aidl_service">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
@@ -50,6 +51,11 @@
         android:supportsRtl="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".Device.OCR.TextScanner.ThermometerScanner"
+            android:label="Thermo Gun CamScanner"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.LandingActivity"
             android:exported="true">

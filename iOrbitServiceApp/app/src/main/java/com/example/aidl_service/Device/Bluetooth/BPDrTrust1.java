@@ -1,8 +1,8 @@
 package com.example.aidl_service.Device.Bluetooth;
 
-import static android.content.ContentValues.TAG;
-
+import static com.example.aidl_service.Utils.Utils.showSuccess;
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -12,27 +12,18 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.os.Build;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.NonNull;
 
 import com.example.aidl_service.Model.SaveMeasureModel;
 import com.example.aidl_service.Model.StatusResponseModel;
 import com.example.aidl_service.Network.RetrofitClient;
 import com.example.aidl_service.Network.ServiceApi;
 import com.example.aidl_service.Utils.StatusDialog;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
-
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,10 +34,8 @@ public class BPDrTrust1 {
 
 
     private BluetoothGatt mGatt;
-    private BluetoothGattService mBPService;
-    private BluetoothGattCharacteristic mBPDevNotify;
     private BluetoothGattCharacteristic mBPDeviceWrite;
-    private Context mContext;
+    private final Context mContext;
 
     private final UUID BPServiceUUID = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb");
     private final UUID BPDevNotifyUUID = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
@@ -62,8 +51,6 @@ public class BPDrTrust1 {
     boolean discOnnected = false;
     private boolean measureSave = false;
     private int pulse;
-    androidx.appcompat.app.AlertDialog userDialog = null;
-    private String patientId = "1aac7dde-8de2-11ec-b1ec-6302cf60bd3c";
 
     public BPDrTrust1(Context context) {
         mContext = context;
@@ -136,8 +123,8 @@ public class BPDrTrust1 {
                 mGatt.disconnect();
                 mGatt.close();
             } else if (status == BluetoothGatt.GATT_SUCCESS && !measureSave) {
-                mBPService = gatt.getService(BPServiceUUID);
-                mBPDevNotify = mBPService.getCharacteristic(BPDevNotifyUUID);
+                BluetoothGattService mBPService = gatt.getService(BPServiceUUID);
+                BluetoothGattCharacteristic mBPDevNotify = mBPService.getCharacteristic(BPDevNotifyUUID);
                 mBPDeviceWrite = mBPService.getCharacteristic(BPDeviceWriteUUID);
                 gatt.setCharacteristicNotification(mBPDevNotify, true);
                 //Utils.showSnackbar(null, "Starting Measurement", com.sensesemi.hospital.Bluetooth.Constants.HIGH, Snackbar.LENGTH_INDEFINITE);
@@ -166,8 +153,6 @@ public class BPDrTrust1 {
                     systolic = ( int) data[2]&0xff;
                     dia = (int) data[3];
                     pulse = (int) data[4];
-                    // Utils.showSnackbar(null, "Measure complete", com.sensesemi.hospital.Bluetooth.Constants.HIGH, Snackbar.LENGTH_INDEFINITE);
-                    //  showDialogSave("Measure Completed","BP(Sys/Dia):"+systolic+"/"+dia+" Pulse:"+pulse);
                     StatusDialog.setMessage("Sys:" + systolic + " Dia :" + dia + " Pulse :" + pulse);
                     StatusDialog.setOnPositiveButtonClickedListener("Save", new StatusDialog.OnPositiveButtonClickedListener() {
                         @SuppressLint("MissingPermission")
@@ -177,6 +162,7 @@ public class BPDrTrust1 {
                             gatt.disconnect();
                             gatt.close();
                             discOnnected = true;
+                            StatusDialog.close();
                             saveMeasurement();
                             measureSave = true;
                             StatusDialog.close();
@@ -206,60 +192,11 @@ public class BPDrTrust1 {
         mGatt.writeCharacteristic(mBPDeviceWrite);
     }
 
-    @SuppressLint("MissingPermission")
-    public void sendACK() {
-        byte[] CR_ACK = new byte[]{0, 1, 1, 2};
-        mBPDeviceWrite.setValue(CR_ACK);
-        mGatt.writeCharacteristic(mBPDeviceWrite);
-    }
-
-    @SuppressLint("MissingPermission")
-    public void sendNACK() {
-        byte[] CR_NAK = new byte[]{0, 1, 0, 1};
-        mBPDeviceWrite.setValue(CR_NAK);
-        mGatt.writeCharacteristic(mBPDeviceWrite);
-    }
-
-
-    private void showDialogSave(String title, String body) {
-
-        final androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(mContext);
-        final androidx.appcompat.app.AlertDialog.Builder builder2 = new androidx.appcompat.app.AlertDialog.Builder(mContext);
-        builder.setTitle(title).setMessage(body).setNeutralButton("Save", new DialogInterface.OnClickListener() {
-            @SuppressLint("MissingPermission")
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    saveMeasurement();
-                    measureSave = true;
-
-                    Log.d(TAG, "onClick: " + measureSave);
-                    // showDialogMessage("Saved Successfully","");
-                    mGatt.disconnect();
-                    stopMeasurement();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        builder2
-                .setTitle(title).setMessage(body).setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
-                    @SuppressLint("MissingPermission")
-                    @Override
-                    public void onClick(DialogInterface dialog2, int which) {
-                        mGatt.disconnect();
-                    }
-                });
-        userDialog = builder.create();
-        userDialog.show();
-
-    }
-
-
-
-
     public void saveMeasurement() {
-
+        ProgressDialog progressDialog = new ProgressDialog(mContext);
+        progressDialog.setMessage("Saving...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
         int[] intVal = {dia, systolic, pulse};
         String[] BpFraction = {"BPDia", "BPSys", ""};
         String[] BpName = {"BP", "BP", "BPM"};
@@ -268,7 +205,7 @@ public class BPDrTrust1 {
         if (retrofitClient == null) {
             return;
         }
-
+        AtomicInteger counter = new AtomicInteger();
         for (int i = 0; i < intVal.length; i++) {
             SaveMeasureModel measure = new SaveMeasureModel();
             measure.setParamName(BpName[i]);
@@ -282,11 +219,13 @@ public class BPDrTrust1 {
                 @Override
                 public void onResponse(Call<StatusResponseModel> call, Response<StatusResponseModel> response) {
                     if(response.isSuccessful()) {
-                        StatusResponseModel saveMeasureModel = new StatusResponseModel();
-                        saveMeasureModel = response.body();
+                        StatusResponseModel saveMeasureModel = response.body();
                         if(saveMeasureModel.getStatus().getMessage().equalsIgnoreCase("Success")){
-                            Toast.makeText(mContext, saveMeasureModel.getStatus().getDetails(), Toast.LENGTH_SHORT).show();
-                            StatusDialog.close();
+                            counter.getAndIncrement();
+                            if (counter.get() == intVal.length) {
+                                progressDialog.dismiss();
+                                showSuccess(mContext,"Measurement has been saved successfully", "Measure Saved");
+                            }
                         }else {
                             Toast.makeText(mContext, "Something went wrong!!", Toast.LENGTH_SHORT).show();
                         }
@@ -298,7 +237,7 @@ public class BPDrTrust1 {
                 }
 
                 @Override
-                public void onFailure(Call<StatusResponseModel> call, Throwable t) {
+                public void onFailure(@NonNull Call<StatusResponseModel> call, @NonNull Throwable t) {
                     Toast.makeText(mContext, "Something went wrong!!", Toast.LENGTH_SHORT).show();
                 }
             });

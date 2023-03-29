@@ -28,7 +28,6 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 
 
-
 public class TextRecognitionAnalyzer extends CommonAnalyzer<Text> {
 
     private TextRecognizer mDetector;

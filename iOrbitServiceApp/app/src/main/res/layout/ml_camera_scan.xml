@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<androidx.camera.view.PreviewView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/BLACK">
+<androidx.camera.view.PreviewView
     android:id="@+id/previewView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:layout_marginTop="80dp"
+    android:padding="10dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:layout_height="400dp"/>
+</LinearLayout>

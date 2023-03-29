@@ -24,6 +24,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
 
+
 import com.example.aidl_service.Device.OCR.camera.util.LogUtils;
 
 import java.util.Locale;
